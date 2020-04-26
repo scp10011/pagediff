@@ -1,0 +1,5 @@
+lxml
+jsonpath_rw
+python-magic
+regex
+requests
