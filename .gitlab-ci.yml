@@ -1,0 +1,47 @@
+stages:
+  - test
+  - pypi
+
+pep8-black:
+  image: pyfound/black
+  stage: test
+  tags:
+    - gci
+  script:
+    - black --target-version=py310 --check pagediff
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "pipeline"'
+
+
+mypy:
+  image:
+    name: cytopia/mypy
+    entrypoint: [ "" ]
+  stage: test
+  tags:
+    - gci
+  script:
+    - mypy -p pagediff
+  allow_failure: true
+
+
+sast:
+  image: secfigo/bandit
+  stage: test
+  tags:
+    - gci
+  script:
+    - bandit -ll -r pagediff -s B303,B108
+  allow_failure: true
+
+
+pypi:
+  image: python:3.10
+  stage: pypi
+  tags:
+    - gci
+  script:
+    - pip3 install build twine
+    - python3 -m build
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/147/packages/pypi dist/*

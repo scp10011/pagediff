@@ -138,6 +138,7 @@ def content_type(r: requests.Response):
             return r.json()
         dom = JsonpRegex.match(r.content)
         if dom:
+
             dom = dom.groupdict().get("json")
             return json.loads(dom)
     elif "html" in mime:
